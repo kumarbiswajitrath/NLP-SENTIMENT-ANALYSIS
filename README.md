@@ -1,210 +1,430 @@
-# NLP Sentiment Analysis
+# 🎬 NLP Sentiment Analysis
 
-An NLP-based sentiment analysis project that classifies IMDB movie reviews as **positive** or **negative** using **TF-IDF vectorization** and **Logistic Regression**.
+A machine learning and NLP project for classifying movie reviews as **positive** or **negative**.
 
-## Project Overview
+This project implements and compares two approaches:
 
-This project implements an end-to-end Natural Language Processing (NLP) pipeline for movie review sentiment classification.
+1. **TF-IDF + Logistic Regression**
+2. **Pretrained DistilBERT**
 
-The workflow includes:
+A **Streamlit web application** allows users to enter a movie review and see predictions from both models.
 
-* Loading the IMDB movie review dataset
-* Text preprocessing and cleaning
-* Train-test splitting
-* TF-IDF feature extraction
-* Logistic Regression model training
-* Model evaluation
-* Confusion matrix visualization
-* Prediction on custom movie reviews
+---
 
-## Dataset
+## 📌 Project Overview
 
-The project uses the **IMDB Dataset of 50K Movie Reviews**.
+Sentiment analysis is an NLP task used to determine the emotional tone of text.
+
+In this project, movie reviews from the **IMDB 50K Movie Reviews dataset** are processed and classified into:
+
+* **Positive**
+* **Negative**
+
+The project covers the complete workflow:
+
+```text
+Movie Reviews
+      ↓
+Text Preprocessing
+      ↓
+Train/Test Split
+      ↓
+TF-IDF Feature Extraction
+      ↓
+Logistic Regression
+      ↓
+Prediction & Evaluation
+```
+
+A pretrained Transformer model is also used:
+
+```text
+Movie Review
+      ↓
+Pretrained DistilBERT
+      ↓
+Sentiment Prediction
+```
+
+---
+
+## 📂 Dataset
+
+**Dataset:** IMDB Dataset of 50K Movie Reviews
 
 * Total reviews: **50,000**
 * Positive reviews: **25,000**
 * Negative reviews: **25,000**
-* Training samples: **40,000**
-* Testing samples: **10,000**
+* Features:
 
-The dataset is not included in this repository.
+  * `review`
+  * `sentiment`
 
-## Technologies Used
+The dataset is downloaded using KaggleHub.
 
-* Python
-* Pandas
-* Scikit-learn
-* Matplotlib
-* Seaborn
-* Joblib
-* KaggleHub
+The dataset itself is not included in this repository.
 
-## NLP Preprocessing
+---
 
-The reviews are cleaned using the following steps:
+## 🧹 Text Preprocessing
 
-1. Convert text to lowercase
-2. Remove HTML `<br>` tags
-3. Remove non-alphabetic characters
-4. Remove extra whitespace
+The following preprocessing steps are applied to the reviews:
 
-## TF-IDF Feature Extraction
+* Convert text to lowercase
+* Remove HTML `<br>` tags
+* Remove non-alphabetic characters
+* Remove extra spaces
 
-TF-IDF (Term Frequency-Inverse Document Frequency) is used to convert the cleaned text into numerical features.
-
-Configuration:
-
-* Maximum features: **20,000**
-* Stop words: **English**
-
-The resulting matrices are:
+Example:
 
 ```text
-Training: (40000, 20000)
-Testing:  (10000, 20000)
+Original:
+"This movie was AMAZING!!! <br /> I loved it."
+
+After preprocessing:
+"this movie was amazing i loved it"
 ```
 
-This means that each review is represented using up to **20,000 TF-IDF features**.
+---
 
-## Machine Learning Model
+# 🤖 Model 1: TF-IDF + Logistic Regression
 
-A **Logistic Regression** classifier is used for sentiment classification.
+### TF-IDF
 
-The model is trained using the TF-IDF representation of the training reviews.
+TF-IDF converts text into numerical features based on the importance of words in the documents.
 
-## Results
+The project uses:
 
-The model was evaluated on **10,000 test reviews**.
+```python
+TfidfVectorizer(
+    max_features=20000,
+    stop_words="english"
+)
+```
 
-### Accuracy
+The training data contains:
 
-**89.72%**
+```text
+40,000 reviews × 20,000 TF-IDF features
+```
 
-### Classification Report
+The test data contains:
 
-| Class    | Precision | Recall | F1-score |
-| -------- | --------: | -----: | -------: |
-| Negative |      0.91 |   0.89 |     0.90 |
-| Positive |      0.89 |   0.91 |     0.90 |
+```text
+10,000 reviews × 20,000 TF-IDF features
+```
+
+### Logistic Regression
+
+The TF-IDF features are given to a Logistic Regression classifier.
+
+```python
+LogisticRegression(max_iter=1000)
+```
+
+### Measured Results
+
+The model achieved:
+
+| Metric   |     Result |
+| -------- | ---------: |
+| Accuracy | **89.72%** |
+| F1 Score | **≈ 0.90** |
+
+Classification results:
+
+```text
+              precision    recall  f1-score   support
+
+negative        0.91      0.89      0.90      5000
+positive        0.89      0.91      0.90      5000
+
+accuracy                            0.90     10000
+```
 
 ### Confusion Matrix
 
+The confusion matrix obtained during evaluation was:
+
 ```text
-                 Predicted
-               Negative  Positive
-Actual Negative   4436      564
-       Positive    464     4536
+[[4436  564]
+ [ 464 4536]]
 ```
 
-The confusion matrix visualization is available in:
+The corresponding visualization is included in:
 
 ```text
 confusion_matrix.png
 ```
 
-## Project Structure
+---
+
+# 🧠 Model 2: Pretrained DistilBERT
+
+The project also uses the pretrained:
+
+```text
+distilbert-base-uncased-finetuned-sst-2-english
+```
+
+DistilBERT is a Transformer-based language model that has already been trained for sentiment classification.
+
+Unlike the Logistic Regression approach, the review is directly passed through the pretrained Transformer model.
+
+### Evaluation
+
+The pretrained DistilBERT model was evaluated on **1,000 balanced IMDB test reviews**.
+
+Results:
+
+| Metric   |     Result |
+| -------- | ---------: |
+| Accuracy | **87.80%** |
+| F1 Score | **0.8753** |
+
+Classification results:
+
+```text
+              precision    recall  f1-score   support
+
+negative        0.86      0.90      0.88       500
+positive        0.90      0.86      0.88       500
+
+accuracy                            0.88      1000
+```
+
+Confusion matrix:
+
+```text
+[[450  50]
+ [ 72 428]]
+```
+
+---
+
+# 📊 Model Results
+
+The measured evaluation results are summarized below:
+
+| Model                        | Evaluation Set |   Accuracy |   F1 Score |
+| ---------------------------- | -------------: | ---------: | ---------: |
+| TF-IDF + Logistic Regression | 10,000 reviews | **89.72%** | **≈ 0.90** |
+| Pretrained DistilBERT        |  1,000 reviews | **87.80%** | **0.8753** |
+
+The evaluation sets are different sizes, so the results should be interpreted with that difference in mind.
+
+---
+
+# 🌐 Streamlit Web Application
+
+The project includes an interactive Streamlit application.
+
+The application allows users to:
+
+* Enter a movie review
+* Get a prediction from TF-IDF + Logistic Regression
+* Get a prediction from pretrained DistilBERT
+* View the confidence reported for each prediction
+* Compare the two model outputs
+
+Run the application using:
+
+```powershell
+streamlit run app.py
+```
+
+The application will open in your browser at:
+
+```text
+http://localhost:8501
+```
+
+---
+
+## 🧪 Example Predictions
+
+### Clearly Positive Review
+
+```text
+The movie was amazing from beginning to end.
+The story was engaging, the acting was excellent,
+and the characters felt realistic. Definitely worth watching.
+```
+
+Both models predicted:
+
+```text
+POSITIVE
+```
+
+with high confidence.
+
+### Clearly Negative Review
+
+```text
+This movie was terrible. The story was boring,
+the acting was weak, and the characters were poorly written.
+I would not recommend it.
+```
+
+Both models predicted:
+
+```text
+NEGATIVE
+```
+
+with high confidence.
+
+### Mixed Review
+
+```text
+The movie had some excellent performances and a few
+really enjoyable scenes, but the story was slow and predictable.
+The first half was interesting, while the second half felt too long.
+Overall, it was an average movie.
+```
+
+The two models produced different predictions:
+
+```text
+TF-IDF + Logistic Regression
+→ POSITIVE — 65.58%
+
+Pretrained DistilBERT
+→ NEGATIVE — 52.91%
+```
+
+This demonstrates that ambiguous reviews can produce less confident and different predictions.
+
+---
+
+# 📁 Project Structure
 
 ```text
 NLP-SENTIMENT-ANALYSIS/
 │
-├── load_data.py
-├── preprocess.py
+├── app.py
 ├── train.py
-├── evaluate.py
 ├── predict.py
-├── requirements.txt
-├── .gitignore
+├── evaluate.py
+├── preprocess.py
+├── load_data.py
+│
+├── bert_predict.py
+├── bert_pretrained_evaluate.py
+│
 ├── sentiment_model.pkl
 ├── tfidf_vectorizer.pkl
-└── confusion_matrix.png
+├── confusion_matrix.png
+│
+├── requirements.txt
+├── README.md
+└── .gitignore
 ```
 
-## How to Run
+---
+
+# 🛠️ Technologies Used
+
+* Python
+* Pandas
+* NumPy
+* Scikit-learn
+* TF-IDF
+* Logistic Regression
+* PyTorch
+* Hugging Face Transformers
+* DistilBERT
+* Streamlit
+* Matplotlib
+* Seaborn
+* KaggleHub
+* Git & GitHub
+
+---
+
+# ▶️ How to Run
 
 ### 1. Clone the repository
 
-```bash
+```powershell
 git clone https://github.com/kumarbiswajitrath/NLP-SENTIMENT-ANALYSIS.git
 ```
 
-### 2. Open the project directory
+### 2. Enter the project directory
 
-```bash
+```powershell
 cd NLP-SENTIMENT-ANALYSIS
 ```
 
 ### 3. Create a virtual environment
 
-```bash
+```powershell
 python -m venv venv
 ```
 
-### 4. Activate the virtual environment
-
-On Windows PowerShell:
+### 4. Activate the environment
 
 ```powershell
-.\venv\Scripts\Activate.ps1
+venv\Scripts\activate
 ```
 
 ### 5. Install dependencies
 
-```bash
+```powershell
 pip install -r requirements.txt
 ```
 
-### 6. Train the model
+### 6. Run the Streamlit application
 
-```bash
-python train.py
+```powershell
+streamlit run app.py
 ```
 
-This creates:
+---
 
-```text
-sentiment_model.pkl
-tfidf_vectorizer.pkl
-```
+# 📌 Key Concepts Demonstrated
 
-### 7. Evaluate the model
+This project demonstrates practical understanding of:
 
-```bash
-python evaluate.py
-```
+* Natural Language Processing
+* Text preprocessing
+* Train/test splitting
+* TF-IDF feature extraction
+* Sparse feature matrices
+* Logistic Regression classification
+* Transformer-based NLP
+* DistilBERT
+* Model evaluation
+* Accuracy and F1 score
+* Classification reports
+* Confusion matrices
+* Streamlit deployment
+* Git and GitHub project management
 
-This displays the accuracy, classification report, and confusion matrix.
+---
 
-### 8. Predict sentiment for a custom review
+# 🚀 Future Improvements
 
-```bash
-python predict.py
-```
+Possible extensions include:
 
-Enter a movie review when prompted.
-
-Example:
-
-```text
-Enter a movie review: This movie was fantastic and I really enjoyed it.
-
-Predicted Sentiment: positive
-```
-
-## Model Performance
-
-The Logistic Regression model achieved an accuracy of:
-
-**89.72%**
-
-on the 10,000-review test set.
-
-## Future Improvements
-
-Possible extensions to this project include:
-
-* Comparing Logistic Regression with Naive Bayes
-* Using word n-grams and character n-grams
 * Hyperparameter tuning
-* Implementing a BERT-based sentiment classifier
-* Developing a Streamlit web interface
-* Comparing traditional NLP methods with Transformer-based models
+* Larger-scale Transformer fine-tuning
+* Additional NLP preprocessing experiments
+* Comparison with other ML classifiers
+* More extensive evaluation datasets
+* Deployment of the Streamlit application
+* Analysis of model errors and ambiguous reviews
+
+---
+
+## 👨‍💻 Author
+
+**Biswajit Rath**
+
+Electronics & Communication Engineering
+National Institute of Technology Rourkela
+
+GitHub:
+
+https://github.com/kumarbiswajitrath
